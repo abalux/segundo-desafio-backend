@@ -17,6 +17,11 @@ class ProductManager {
         this.products = [];
     }
 
+    async reset() {
+        this.products = [];
+        await this.writeProducts();
+    }
+
     async readProducts(){
         try {
             const content = await fs.readFile(this.route, "utf-8");
@@ -95,6 +100,8 @@ class ProductManager {
     const manager = new ProductManager();
     //testeo
     (async () => {
+
+        await manager.reset();
         await manager.getProducts();
         manager.addProduct("Producto prueba", "Este es un producto prueba", 200, "Sin imagen", "abc123", 25);
         await manager.getProducts();
