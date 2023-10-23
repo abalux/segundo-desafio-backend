@@ -1,7 +1,25 @@
 import { promises as fs } from 'fs';
 
+class IDGenerator {
+    constructor() {
+        this.counter = 0;
+        this.usedIDs = new Set();
+    }
+
+    generateUniqueID() {
+        let newID;
+        do {
+            newID = ++this.counter; 
+        } while (this.usedIDs.has(newID)); 
+
+        this.usedIDs.add(newID); 
+        return newID;
+    }
+}
+
 class Product {
-    constructor (title, description, price, thumbnail, code, stock) {
+    constructor (id, title, description, price, thumbnail, code, stock) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.price = price;
@@ -15,6 +33,7 @@ class ProductManager {
     constructor() {
         this.route = "products.json"
         this.products = [];
+        this.idGenerator = new IDGenerator();
     }
 
     async reset() {
@@ -45,8 +64,8 @@ class ProductManager {
         }else if(!title || !description || !price || !thumbnail || !code || !stock){
             console.error("All fields are required")
         }else{
-            const product = new Product(title, description, price, thumbnail, code, stock);
-            product.id = this.products.length + 1
+            const id = this.idGenerator.generateUniqueID();
+            const product = new Product(id, title, description, price, thumbnail, code, stock);
             this.products.push(product);
             await this.writeProducts()
         }
@@ -103,7 +122,7 @@ class ProductManager {
 
         await manager.reset();
         await manager.getProducts();
-        manager.addProduct("Producto prueba", "Este es un producto prueba", 200, "Sin imagen", "abc123", 25);
+        await manager.addProduct("Producto prueba", "Este es un producto prueba", 200, "Sin imagen", "abc123", 25);
         await manager.getProducts();
         manager.addProduct("producto prueba", "este es un producto prueba", 200, "sin imagen", "abc123", 25);
         manager.addProduct("producto prueba", "este es un producto prueba", 200, "sin imagen", "abc124");
